@@ -113,7 +113,6 @@ function jsTask() {
     .pipe(dest('dist'));
 }
 
-// eslint-disable-next-line no-unused-vars
 function watchTask() {
   watch(paths.scss, series(cleanTasks.css, cleanTasks.js, cssTask, jsTask));
   watch(paths.html, series(cleanTasks.html, cleanTasks.js, htmlTask, jsTask));
@@ -133,6 +132,6 @@ exports.default = series(
   metadataTask,
   cssTask,
   htmlTask,
-  jsTask
-  // watchTask
+  jsTask,
+  watchTask
 );
