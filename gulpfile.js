@@ -113,6 +113,7 @@ function jsTask() {
     .pipe(dest('dist'));
 }
 
+// eslint-disable-next-line no-unused-vars
 function watchTask() {
   watch(paths.scss, series(cleanTasks.css, cleanTasks.js, cssTask, jsTask));
   watch(paths.html, series(cleanTasks.html, cleanTasks.js, htmlTask, jsTask));
@@ -135,3 +136,6 @@ exports.default = series(
   jsTask,
   watchTask
 );
+
+// const ignore = require('gulp-ignore');
+// https://stackoverflow.com/questions/36982472/gulp-change-src

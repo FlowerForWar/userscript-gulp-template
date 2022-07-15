@@ -6,12 +6,12 @@
 // @author         FlowerForWar
 // @match          *://*/*
 // @grant          GM.getValue
-// @grant          GM_getValue
 // @grant          GM.setValue
-// @grant          GM_setValue
-// @grant          GM.xmlHttpRequest
-// @grant          GM_xmlhttpRequest
+// @grant          GM.xmlhttpRequest
 // @grant          GM.setClipboard
+// @grant          GM_getValue
+// @grant          GM_setValue
+// @grant          GM_xmlhttpRequest
 // @grant          GM_setClipboard
 // @run-at         document-start
 // @noframes

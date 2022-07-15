@@ -6,7 +6,7 @@
 
 const { name, version, description, author, license } = require('../package.json');
 
-exports.metadata = {
+const metadata = {
   name,
   version,
   namespace: `https://github.com/${author}`,
@@ -14,14 +14,13 @@ exports.metadata = {
   author,
   match: ['*://*/*'],
   grant: [
-    //
-    'GM.getValue',
+    /**
+     * No need to add the Greasemonkey version of the function, if the word `Greasemonkey`
+     * is mentioned in one of the keys, at the `compatible` section.
+     */
     'GM_getValue',
-    'GM.setValue',
     'GM_setValue',
-    'GM.xmlHttpRequest',
     'GM_xmlhttpRequest',
-    'GM.setClipboard',
     'GM_setClipboard',
   ],
   'run-at': 'document-start',
@@ -40,3 +39,36 @@ exports.metadata = {
   icon: 'https://violentmonkey.github.io/icons/icon-48x48.png', // https://www.google.com/s2/favicons?sz=64&domain=github.com
   license,
 };
+
+const metadataDev = {
+  name: `${name} [DEV]`,
+  version: '0.0.0',
+  icon: 'https://violentmonkey.github.io/icons/icon-48x48.png',
+};
+
+/**
+ * Granting the `GM_xmlhttpRequest` function for the developer version of the script
+ */
+if (!metadata.grant.includes('GM_xmlhttpRequest')) {
+  metadataDev.grant = ['GM_xmlhttpRequest'];
+}
+
+const supportsGreasemonkey =
+  metadata.compatible &&
+  metadata.compatible.some((key) => key.toLowerCase().includes('greasemonkey'));
+
+/**
+ * Automatically add support for Greasemonkey functions, if the word `Greasemonkey`
+ * is mentioned in one of the keys, at the `compatible` section.
+ */
+if (supportsGreasemonkey && metadata.grant.length) {
+  metadata.grant = [
+    ...metadata.grant.map((functionName) => functionName.replace('_', '.')),
+    ...metadata.grant,
+  ];
+}
+
+console.log(metadataDev);
+
+exports.metadata = metadata;
+exports.metadataDev = metadataDev;
