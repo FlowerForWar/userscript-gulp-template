@@ -4,6 +4,7 @@
  * start the package again.
  */
 
+require('paint-console');
 const { src, dest, watch, series } = require('gulp');
 
 const sass = require('gulp-sass')(require('sass'));
@@ -14,22 +15,24 @@ const htmlmin = require('gulp-htmlmin');
 const newFile = require('gulp-file');
 const rename = require('gulp-rename');
 const replace = require('gulp-replace');
-const flatten = require('gulp-flatten');
+const noop = require('gulp-noop');
+
 const modifyContent = require('gulp-modifier');
-const { prependFile } = require('gulp-append-prepend-no-trim');
+const { prependText, prependFile } = require('gulp-append-prepend-no-trim');
 const { stringify: stringifyMeta } = require('userscript-meta-f4w');
 
 const fs = require('fs');
 const del = require('del');
 const path = require('path');
 
+const buildConfig = require('./build.config.js');
 const { importModules } = require('./lib/importModules.js');
-const { metadata } = require('./src/metadata.js');
+const { metadata, metadataDev } = require('./src/metadata.js');
 
 const paths = {
-  scss: 'src/css/**/*.scss',
-  css: ['dist/*.css', '!dist/*.min.css'],
-  html: 'src/html/**/*.html',
+  scss: 'src/scss/*.scss',
+  css: ['dist/*.css' /* '!dist/*.min.css' */],
+  html: 'src/html/*.html',
   js: ['src/index.js', 'src/js/**/*.js'],
 };
 
@@ -53,70 +56,110 @@ const cleanTasks = {
   },
 };
 
-function metadataTask() {
-  return newFile(`${metadata.name}.meta.js`, '', { src: true })
-    .pipe(modifyContent(() => stringifyMeta(metadata)))
-    .pipe(dest('dist'))
-    .pipe(rename(`${metadata.name}.dev.js`))
-    .pipe(
-      modifyContent((content) => {
-        return [
-          content.replace(new RegExp(`(^// @name *${metadata.name})`, 'm'), '$1 [DEV]'),
-          `GM_xmlhttpRequest({\n  url: 'http://192.168.1.39:3905/user-script-grunt?folder=${metadata.name}&_=.js',`,
-          '  // eslint-disable-next-line no-eval',
-          '  onload: ({ responseText }) => eval(responseText),',
-          '});\n',
-        ].join('\n');
-      })
-    )
-    .pipe(dest('dist'));
-}
+const metadataTasks = {
+  user: function metadataTask() {
+    return newFile(`${metadata.name}.meta.js`, '', { src: true })
+      .pipe(modifyContent(() => stringifyMeta(metadata)))
+      .pipe(dest('dist'));
+  },
+  dev: function metadataDevTask() {
+    return newFile(`${metadata.name}.dev.js`, '', { src: true })
+      .pipe(modifyContent(() => stringifyMeta(metadataDev)))
+      .pipe(
+        modifyContent((content) => {
+          return [
+            content,
+            `GM_xmlhttpRequest({\n  url: 'http://192.168.1.39:3905/user-script-grunt?folder=${metadata.name}&_=.js',`,
+            '  // eslint-disable-next-line no-eval',
+            '  onload: ({ responseText }) => eval(responseText),',
+            '});\n',
+          ].join('\n');
+        })
+      )
+      .pipe(dest('dist'));
+  },
+};
 
 function cssTask() {
-  return src(paths.scss)
-    .pipe(flatten())
-    .pipe(sass())
-    .pipe(dest('dist'))
-    .pipe(postcss([cssnano()]))
-    .pipe(
-      rename((pathObject) => {
-        return {
-          ...pathObject,
-          basename: `${pathObject.basename}.min`,
-          // dirname
-          // extname
-        };
-      })
-    )
-    .pipe(dest('dist'));
+  const scssStream = src(paths.scss).pipe(sass()).pipe(dest('dist'));
+  if (buildConfig.cssMinify) {
+    // console.info('Minifing css files..');
+    return scssStream
+      .pipe(postcss([cssnano()]))
+      .pipe(
+        rename((pathObject) => {
+          return {
+            ...pathObject,
+            basename: `${pathObject.basename}.min`,
+            // dirname
+            // extname
+          };
+        })
+      )
+      .pipe(dest('dist'));
+  }
+  // console.warn('Minifing css option is disabled');
+  return scssStream;
 }
 
 function htmlTask() {
-  return src(paths.html)
-    .pipe(flatten())
-    .pipe(htmlmin({ collapseWhitespace: !0 }))
-    .pipe(dest('dist'));
+  return (
+    src(paths.html)
+      // .pipe(flatten())
+      .pipe(htmlmin({ collapseWhitespace: !0 }))
+      .pipe(dest('dist'))
+  );
 }
 
 function jsTask() {
-  return src('src/index.js')
-    .pipe(modifyContent(importModules))
-    .pipe(
-      replace(regex.include, (match, fileName) => {
-        return fs.readFileSync(path.resolve('./dist', fileName), 'utf8');
-      })
-    )
-    .pipe(replace(/export default \w+;/g, ''))
-    .pipe(replace(/\n{2,}/g, '\n\n'))
-    .pipe(rename(`${metadata.name}.user.js`))
-    .pipe(prependFile(`dist/${metadata.name}.meta.js`))
-    .pipe(dest('dist'));
+  return (
+    src('src/index.js')
+      //
+      /** `Import` replacements */
+      .pipe(buildConfig.importSupport ? modifyContent(importModules) : noop())
+
+      /** `Include` replacements */
+      .pipe(
+        buildConfig.cssSupport || buildConfig.htmlMinify
+          ? replace(regex.include, (match, fileName) => {
+              return fs.readFileSync(path.resolve('./dist', fileName), 'utf8');
+            })
+          : noop()
+      )
+
+      /** `Cleaning up` replacements */
+      .pipe(buildConfig.importSupport ? replace(/export default \w+;/g, '') : noop())
+      .pipe(replace(/\n{2,}/g, '\n\n'))
+
+      /** Inserting the source URL if one of these options is enabled, `cssSupport`,
+       * `htmlMinify` or `importSupport`.
+       */
+      .pipe(
+        buildConfig.cssSupport || buildConfig.htmlMinify || buildConfig.importSupport
+          ? prependText(
+              `/**\n * Source files are available at ${metadata.homepageURL}/tree/main/src\n */\n`
+            )
+          : noop()
+      )
+
+      /** Inserting the user script metadata block */
+      .pipe(prependFile(`dist/${metadata.name}.meta.js`))
+
+      .pipe(rename(`${metadata.name}.user.js`))
+      .pipe(dest('dist'))
+  );
 }
 
 // eslint-disable-next-line no-unused-vars
 function watchTask() {
-  watch(paths.scss, series(cleanTasks.css, cleanTasks.js, cssTask, jsTask));
-  watch(paths.html, series(cleanTasks.html, cleanTasks.js, htmlTask, jsTask));
+  if (buildConfig.cssSupport) {
+    watch(paths.scss, series(cleanTasks.css, cleanTasks.js, cssTask, jsTask));
+  }
+
+  if (buildConfig.htmlMinify) {
+    watch(paths.html, series(cleanTasks.html, cleanTasks.js, htmlTask, jsTask));
+  }
+
   watch(paths.js, series(cleanTasks.js, jsTask));
 }
 
@@ -127,15 +170,16 @@ function waitTask() {
   });
 }
 
-exports.default = series(
-  //
+const defaultTasks = [
   cleanTasks.all,
-  metadataTask,
-  cssTask,
-  htmlTask,
+  metadataTasks.user,
+  metadataTasks.dev,
+  buildConfig.cssSupport && cssTask,
+  buildConfig.htmlMinify && htmlTask,
   jsTask,
-  watchTask
-);
+  watchTask,
+].filter(Boolean);
 
-// const ignore = require('gulp-ignore');
-// https://stackoverflow.com/questions/36982472/gulp-change-src
+// console.log(defaultTasks);
+
+exports.default = series(...defaultTasks);

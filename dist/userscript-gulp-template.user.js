@@ -5,14 +5,14 @@
 // @description    User script template that acts as module and tries to simulate imports
 // @author         FlowerForWar
 // @match          *://*/*
-// @grant          GM.getValue
-// @grant          GM.setValue
-// @grant          GM.xmlhttpRequest
-// @grant          GM.setClipboard
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_xmlhttpRequest
 // @grant          GM_setClipboard
+// @grant          GM.getValue
+// @grant          GM.setValue
+// @grant          GM.xmlhttpRequest
+// @grant          GM.setClipboard
 // @run-at         document-start
 // @noframes
 // @compatible     edge Tampermonkey or Violentmonkey
@@ -23,9 +23,13 @@
 // @homepageURL    https://github.com/FlowerForWar/userscript-gulp-template
 // @updateURL      https://github.com/FlowerForWar/userscript-gulp-template/raw/main/dist/userscript-gulp-template.meta.js
 // @downloadURL    https://github.com/FlowerForWar/userscript-gulp-template/raw/main/dist/userscript-gulp-template.user.js
-// @icon           https://violentmonkey.github.io/icons/icon-48x48.png
+// @icon           https://github.com/FlowerForWar/userscript-gulp-template/blob/main/src/icons/user.png?raw=true
 // @license        MIT
 // ==/UserScript==
+
+/**
+ * Source files are available at https://github.com/FlowerForWar/userscript-gulp-template/tree/main/src
+ */
 
 const myString = 'Hello';
 

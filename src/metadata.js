@@ -12,10 +12,14 @@ const metadata = {
   namespace: `https://github.com/${author}`,
   description,
   author,
-  match: ['*://*/*'],
+  match: [
+    //
+    '*://*/*',
+  ],
   grant: [
     /**
-     * No need to add the Greasemonkey version of the function, if the word `Greasemonkey`
+     * To disable grant, don't remove its key, instead, comment all the GM functions
+     * Also, no need to add the Greasemonkey version of the function, if the word `Greasemonkey`
      * is mentioned in one of the keys, at the `compatible` section.
      */
     'GM_getValue',
@@ -36,21 +40,21 @@ const metadata = {
   homepageURL: `https://github.com/${author}/${name}`,
   updateURL: `https://github.com/${author}/${name}/raw/main/dist/${name}.meta.js`,
   downloadURL: `https://github.com/${author}/${name}/raw/main/dist/${name}.user.js`,
-  icon: 'https://violentmonkey.github.io/icons/icon-48x48.png', // https://www.google.com/s2/favicons?sz=64&domain=github.com
+  icon: `https://github.com/${author}/${name}/blob/main/src/icons/user.png?raw=true`,
+  // icon: 'https://www.google.com/s2/favicons?sz=64&domain=github.com',
   license,
 };
 
-const metadataDev = {
-  name: `${name} [DEV]`,
-  version: '0.0.0',
-  icon: 'https://violentmonkey.github.io/icons/icon-48x48.png',
-};
+const metadataDev = { ...metadata };
+metadataDev.name += '  [DEV]';
+metadataDev.version = '0.0.0';
+metadataDev.icon = `https://github.com/${author}/${name}/blob/main/src/icons/dev.png?raw=true`;
 
 /**
  * Granting the `GM_xmlhttpRequest` function for the developer version of the script
  */
-if (!metadata.grant.includes('GM_xmlhttpRequest')) {
-  metadataDev.grant = ['GM_xmlhttpRequest'];
+if (!metadataDev.grant.includes('GM_xmlhttpRequest')) {
+  metadataDev.grant = ['GM_xmlhttpRequest', ...metadataDev.grant];
 }
 
 const supportsGreasemonkey =
@@ -63,12 +67,17 @@ const supportsGreasemonkey =
  */
 if (supportsGreasemonkey && metadata.grant.length) {
   metadata.grant = [
-    ...metadata.grant.map((functionName) => functionName.replace('_', '.')),
     ...metadata.grant,
+    ...metadata.grant.map((functionName) => functionName.replace('_', '.')),
   ];
 }
 
-console.log(metadataDev);
+if (supportsGreasemonkey && metadataDev.grant.length) {
+  metadataDev.grant = [
+    ...metadataDev.grant,
+    ...metadataDev.grant.map((functionName) => functionName.replace('_', '.')),
+  ];
+}
 
 exports.metadata = metadata;
 exports.metadataDev = metadataDev;
