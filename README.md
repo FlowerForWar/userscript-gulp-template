@@ -6,15 +6,19 @@
 </p>
 
 ### Installation
-* Clone or copy this repository
-* `npm install`
-* `npm start`
+
+- Clone or copy this repository
+- `npm install`
+- `npm start`
 
 ### Notes
-* This project assumes you are using Violentmonkey or Tampermonkey, and gives an option to support Greasemonkey.
+
+- This project assumes you are using Violentmonkey or Tampermonkey, and gives an option to support Greasemonkey.
+
 ---
 
 #### Build configuration
+
 ```js
 // './build.config.js'
 
