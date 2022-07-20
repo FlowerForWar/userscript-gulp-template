@@ -8,6 +8,8 @@
 ### Notes
 * This project assumes you are using Violentmonkey or Tampermonkey, and gives an option to support Greasemonkey.
 
+---
+
 #### Build configuration
 ```js
 // './build.config.js'
