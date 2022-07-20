@@ -4,3 +4,6 @@
   </a>
   <p align="center">Made possible with Gulp</p>
 </p>
+
+## Notes
+* This project assumes you are using Violentmonkey or Tampermonkey, and gives an option to support Greasemonkey.
