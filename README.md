@@ -5,9 +5,13 @@
   <p align="center">Made possible with Gulp</p>
 </p>
 
+### Installation
+* Clone or copy this repository
+* `npm install`
+* `npm start`
+
 ### Notes
 * This project assumes you are using Violentmonkey or Tampermonkey, and gives an option to support Greasemonkey.
-
 ---
 
 #### Build configuration
