@@ -19,7 +19,7 @@ const metadata = {
   grant: [
     /**
      * To disable grant, don't remove its key, instead, comment all the GM functions.
-     * Also, no need to add the Greasemonkey version of the function, if the word `Greasemonkey`
+     * Also, no need to add the Greasemonkey version of the function if the word `Greasemonkey`
      * is mentioned in one of the keys, at the `compatible` section.
      */
     'GM_getValue',
