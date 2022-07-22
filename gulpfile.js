@@ -106,7 +106,7 @@ function htmlTask() {
   return (
     src(paths.html)
       // .pipe(flatten())
-      .pipe(htmlmin({ collapseWhitespace: !0 }))
+      .pipe(htmlmin({ collapseWhitespace: !0, removeComments: !0 }))
       .pipe(dest('dist'))
   );
 }
