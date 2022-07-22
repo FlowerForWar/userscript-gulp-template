@@ -148,7 +148,11 @@ function jsTask() {
       .pipe(prependFile(`dist/${metadata.name}.meta.js`))
 
       /** Applying `prettier.format` on the final code */
-      .pipe(modifyContent((content) => prettier.format(content, prettierConfig)))
+      .pipe(
+        modifyContent((content) => {
+          return prettier.format(content, { parser: 'babel', ...prettierConfig });
+        })
+      )
 
       .pipe(rename(`${metadata.name}.user.js`))
       .pipe(dest('dist'))
