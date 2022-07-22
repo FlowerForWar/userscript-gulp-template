@@ -1,4 +1,5 @@
 module.exports = {
+  parser: 'babel',
   trailingComma: 'es5',
   printWidth: 100,
   singleQuote: !0,

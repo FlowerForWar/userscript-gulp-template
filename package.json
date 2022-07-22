@@ -19,7 +19,7 @@
     "gulp": "^4.0.2",
     "gulp-append-prepend-no-trim": "^1.1.0",
     "gulp-file": "^0.4.0",
-    "gulp-htmlmin": "^5.0.1",
+    "gulp-html-minifier-terser": "^6.0.1",
     "gulp-modifier": "^1.0.1",
     "gulp-noop": "^1.0.1",
     "gulp-postcss": "^9.0.1",
