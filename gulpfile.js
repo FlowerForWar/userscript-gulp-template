@@ -129,7 +129,8 @@ function jsTask() {
 
       /** `Cleaning up` replacements */
       .pipe(buildConfig.importSupport ? replace(/export default \w+;/g, '') : noop())
-      .pipe(replace(/\n{2,}/g, '\n\n'))
+      // .pipe(replace(/\n{2,}/g, '\n\n'))
+      .pipe(replace(/(\r?\n){2,}/g, '\n\n'))
 
       /** Inserting the source URL if one of these options is enabled, `cssSupport`,
        * `htmlMinify` or `importSupport`.
